@@ -1,0 +1,9 @@
+MP1;Bo gia;Drama;120;PG-18;2023
+MP2;Avengers End Game;Action;115;PG-13;2020
+MP3;Captain America;Action;125;PG-15;2015
+MP4;Naruto Shippuden;Anime;90;R;2012
+MP5;Batman Gotham;Cartoon;60;PG-10;2007
+MP6;Than Dieu Dai Hiep;Xamloz;55;PG-10;1998
+MP7;Boruto;Anime;45;PG_12;2022
+MP8;Doctor Strange;Action;120;PG-15;2019
+MP9;Mai;Drama Romantic;130;PG-18;2024

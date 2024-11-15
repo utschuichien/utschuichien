@@ -8,6 +8,7 @@
 #include <iomanip>
 #include <conio.h>
 #include <vector>
+#include <algorithm>
 using namespace std;
 
 void readFileForShowTime();
@@ -943,10 +944,6 @@ void run()
     do
     {
         bool check, out_the_loop = false; // điều kiện thoát vòng lặp
-        // string nameStaff = "";
-        // intro();
-        // accManagement acc;
-        // acc.checkLogin(check, nameStaff); // check = true gọi đến quản lí , false gọi đến nhân viên đặt vé
         while (out_the_loop == false)
         {
             char tt; // lựa chọn 1 là quản lí phim, 2 là quản lí nhân viên
@@ -984,80 +981,6 @@ void run()
                 cout << "\a";
             }
         }
-        // if (check == true)
-        // {
-
-        //     while (out_the_loop == false)
-        //     {
-        //         char tt; // lựa chọn 1 là quản lí phim, 2 là quản lí nhân viên
-        //         intro_manager();
-
-        //         tt = getche();
-        //         switch (tt)
-        //         {
-
-        //         case '1':
-        //         {
-        //             movieManagement movie;
-        //             movie.start();
-        //             break;
-        //         }
-
-        //         case '2':
-        //         {
-
-        //             staffManager staff;
-        //             staff.start();
-        //             break;
-        //         }
-        //         case '3':
-        //         {
-        //             Revenue revenue;
-        //             revenue.total_inDay();
-        //             break;
-        //         }
-        //         case '4':
-        //         {
-        //             out_the_loop = true;
-        //             break;
-        //         }
-
-        //         default:
-        //             cout << "\a";
-        //         }
-        //     }
-        // }
-
-        // else
-        // {
-        //     while (out_the_loop == false)
-        //     {
-        //         char tt;
-        //         intro_staff();
-
-        //         tt = getche();
-        //         switch (tt)
-        //         {
-
-        //         case '1':
-        //         {
-        //             Booking booking;
-        //             booking.Datve(nameStaff);
-        //             break;
-        //         }
-
-        //         case '2':
-        //         {
-        //             out_the_loop = true;
-        //             break;
-        //         }
-
-        //         default:
-        //             cout << "\a";
-        //         }
-        //     }
-        // }
-
     } while (1);
 }
 int main()
@@ -1141,35 +1064,107 @@ bool isShowTimeConflict(const string &roomId, const string &time, const string &
     }
     return false; // Không trùng lịch chiếu
 }
+
+bool isRelationExist(const string& filename, const string& id1, const string& id2)
+{
+    ifstream checkFile(filename);  // Mở file đọc
+    string line;
+    while (getline(checkFile, line))
+    {
+        size_t pos = line.find(";");
+        string first = line.substr(0, pos);
+        string second = line.substr(pos + 1);
+        if (first == id1 && second == id2)
+        {
+            checkFile.close();
+            return true;
+        }
+    }
+    checkFile.close();
+    return false;
+}
 void createNewShowTimeForMovie(string movieId)
 {
-    readFileRoom();
-    ofstream outFile("showTime.txt", ios::app);
-    int maxShowsTimePerDay = 3; // Tối đa suất chiếu cho mỗi phim trong 1 ngày
-    int showCount = 0;         // Đếm số suất chiếu cho phim đang thêm
-    int timehour = 7;          // Giờ bắt đầu của suất chiếu
-    string timeminute = "H30";
-    string date = getCurrentDate(); // Lấy ngày hiện tại
-    string seat_infor = "";         // Thông tin ghế trống
+    readFileRoom();  // Đọc dữ liệu phòng chiếu
+    ofstream outFile("showTime.txt", ios::app);  // Mở file showtime.txt để thêm suất chiếu
 
-    for (int i = 0; i < 6; i++) // Duyệt qua 6 suất chiếu mặc định
+    int maxShowsTimePerDay = 3;  // Tối đa suất chiếu cho mỗi phim trong 1 ngày
+    int showCount = 0;           // Đếm số suất chiếu cho phim đang thêm
+    int timehour = 7;            // Giờ bắt đầu của suất chiếu
+    string timeminute = "H30";   // Phút bắt đầu
+    string date = getCurrentDate();  // Lấy ngày hiện tại
+    string seat_infor = "";      // Thông tin ghế trống (có thể để trống nếu không cần)
+
+    // Mở các file trung gian để ghi quan hệ
+    ofstream movieShowtimeFile("movie_showtime.txt", ios::app);
+    ofstream roomShowtimeFile("room_showtime.txt", ios::app);
+    ofstream movieRoomFile("movie_room.txt", ios::app);
+
+    // Đọc tất cả quan hệ đã có trong các file vào bộ nhớ để kiểm tra
+    vector<string> movieShowtimeData;
+    vector<string> roomShowtimeData;
+    vector<string> movieRoomData;
+
+    string line;
+
+    // Đọc file movie_showtime.txt
+    ifstream movieShowtimeFileRead("movie_showtime.txt");
+    while (getline(movieShowtimeFileRead, line)) {
+        movieShowtimeData.push_back(line);
+    }
+    movieShowtimeFileRead.close();
+
+    // Đọc file room_showtime.txt
+    ifstream roomShowtimeFileRead("room_showtime.txt");
+    while (getline(roomShowtimeFileRead, line)) {
+        roomShowtimeData.push_back(line);
+    }
+    roomShowtimeFileRead.close();
+
+    // Đọc file movie_room.txt
+    ifstream movieRoomFileRead("movie_room.txt");
+    while (getline(movieRoomFileRead, line)) {
+        movieRoomData.push_back(line);
+    }
+    movieRoomFileRead.close();
+
+    for (int i = 0; i < 6; i++)  // Duyệt qua 6 suất chiếu mặc định trong một ngày
     {
-        node<room> *currentRoom = RoomManagement.getHead(); // Duyệt từ phòng đầu tiên
+        node<room>* currentRoom = RoomManagement.getHead();  // Lấy danh sách phòng chiếu từ đầu
         while (currentRoom != NULL)
         {
-            string showTimeId = "S" + to_string(i + 1); // Tạo ID suất chiếu
+            string showTimeId = "S" + to_string(i + 1);  // Tạo ID suất chiếu
             string time = to_string(timehour) + timeminute;
 
-            // Kiểm tra nếu suất chiếu không trùng lịch
+            // Kiểm tra xem suất chiếu có trùng lịch với phòng chiếu không
             if (!isShowTimeConflict(currentRoom->data.getId(), time, date))
             {
                 showTime s(showTimeId, movieId, currentRoom->data.getId(), time, date, seat_infor);
 
-                // Ghi suất chiếu vào file
-                outFile << s.getId() << ";" << s.getMovieId() << ";" << s.getRoomId() << ";" << s.getTime() << ";" << s.getDate();
-                outFile << "\n";
-                outFile << s.getSeatInfor();
-                outFile << "\n\n";
+                // Ghi thông tin suất chiếu vào file showTime.txt
+                outFile << s.getId() << ";" << s.getMovieId() << ";" << s.getRoomId() << ";" << s.getTime() << ";" << s.getDate() << "\n";
+                outFile << s.getSeatInfor() << "\n\n";
+
+                // Kiểm tra và ghi quan hệ giữa phim và suất chiếu nếu chưa tồn tại
+                string movieShowtimeRelation = movieId + ";" + showTimeId;
+                if (find(movieShowtimeData.begin(), movieShowtimeData.end(), movieShowtimeRelation) == movieShowtimeData.end()) {
+                    movieShowtimeFile << movieId << ";" << showTimeId << "\n";  // Quan hệ giữa phim và suất chiếu
+                    movieShowtimeData.push_back(movieShowtimeRelation);  // Thêm vào bộ nhớ
+                }
+
+                // Kiểm tra và ghi quan hệ giữa phòng và suất chiếu nếu chưa tồn tại
+                string roomShowtimeRelation = currentRoom->data.getId() + ";" + showTimeId;
+                if (find(roomShowtimeData.begin(), roomShowtimeData.end(), roomShowtimeRelation) == roomShowtimeData.end()) {
+                    roomShowtimeFile << currentRoom->data.getId() << ";" << showTimeId << "\n";  // Quan hệ giữa phòng và suất chiếu
+                    roomShowtimeData.push_back(roomShowtimeRelation);  // Thêm vào bộ nhớ
+                }
+
+                // Kiểm tra và ghi quan hệ giữa phim và phòng chiếu nếu chưa tồn tại
+                string movieRoomRelation = movieId + ";" + currentRoom->data.getId();
+                if (find(movieRoomData.begin(), movieRoomData.end(), movieRoomRelation) == movieRoomData.end()) {
+                    movieRoomFile << movieId << ";" << currentRoom->data.getId() << "\n";  // Quan hệ giữa phim và phòng chiếu
+                    movieRoomData.push_back(movieRoomRelation);  // Thêm vào bộ nhớ
+                }
 
                 // Thêm suất chiếu vào danh sách quản lý
                 addShowTime(s);
@@ -1178,7 +1173,7 @@ void createNewShowTimeForMovie(string movieId)
                 showCount++;
             }
 
-            currentRoom = currentRoom->next; // Chuyển sang phòng tiếp theo
+            currentRoom = currentRoom->next;  // Chuyển sang phòng tiếp theo
 
             // Nếu đủ suất chiếu trong ngày thì dừng
             if (showCount >= maxShowsTimePerDay)
@@ -1193,15 +1188,27 @@ void createNewShowTimeForMovie(string movieId)
         timehour += 2;
         if (i == 5 && currentRoom == NULL && showCount < maxShowsTimePerDay)
         {
-            date = getNextDate(date); // Lấy ngày kế tiếp
-            timehour = 7;            // Reset giờ chiếu
-            i = -1;                  // Reset vòng lặp để bắt đầu lại cho ngày mới
+            date = getNextDate(date);  // Lấy ngày kế tiếp
+            timehour = 7;              // Reset giờ chiếu
+            i = -1;                    // Reset vòng lặp để bắt đầu lại cho ngày mới
         }
-
     }
 
+    // Đóng các file sau khi ghi xong
     outFile.close();
+    movieShowtimeFile.close();
+    roomShowtimeFile.close();
+    movieRoomFile.close();
 }
+
+
+
+// Kiểm tra xem quan hệ đã tồn tại trong file chưa
+// Kiểm tra xem quan hệ đã tồn tại trong file chưa
+
+
+
+
 void removeShowTime(string id)
 {
     ifstream inFile("showTime.txt");

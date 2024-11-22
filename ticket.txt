@@ -1,2 +1,2 @@
-0;Vo Minh Phi;Sicdsd;A1;55000;16/11/24 15:23;7H30;R2
-1;Vo Minh Phi;Sicdsd;B2;55000;16/11/24 15:23;7H30;R2
+0;Vo Minh Phi;ko sao ma;A1;55000;22/11/24 15:52;9H30;R2
+1;Vo Minh Phi;ko sao ma;B3;55000;22/11/24 15:53;9H30;R2

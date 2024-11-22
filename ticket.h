@@ -17,6 +17,7 @@ private:
     string BuyTime;      // thời gian mua
     string MovieTime;    // thời gian chiếu
     string Room;         // phòng chiếu
+    string Showtime;     // suat chieu
     // string NameStaff;    // tên nhân viên
     // string Staff_id;
 
@@ -40,11 +41,12 @@ public:
     void setPrice(int);
     void setBuyTime();
     void setRoom(string);
+    void setShowtime(string);
     // void setNameStaff(string);
     // void setStaff_id(string);
 
     ~ticket();
-    ticket(string = "", string = "", string = "", string = "", string = "",string= "");
+    ticket(string = "", string = "", string = "", string = "", string = "",string= "", string = "");
     void show();
 
     void SaveToFile();

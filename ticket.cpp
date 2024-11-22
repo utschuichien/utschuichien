@@ -10,7 +10,7 @@ string getCurrentDateTime()
     return oss.str();
 }
 
-ticket::ticket(string id, string customer, string movie, string seat, string movietime, string room)
+ticket::ticket(string id, string customer, string movie, string seat, string movietime, string room,string showtime)
 {
     this->TicketId = id;
     this->CustomerName = customer;
@@ -20,6 +20,7 @@ ticket::ticket(string id, string customer, string movie, string seat, string mov
     this->BuyTime = getCurrentDateTime();
     this->MovieTime = movietime;
     this->Room = room;
+    this->Showtime = showtime;
     // this->NameStaff = staff;
     // this->Staff_id = s_id;
 }
@@ -32,12 +33,13 @@ void ticket::show()
     cout << "o" << std::string(38, '=') << "o" << endl;
     std::cout << "\t  TicketId:   "  << TicketId << endl;
     std::cout << "  Movie:\t"  << MovieName << endl;
-    std::cout << "  START:\t"  << MovieTime << endl;
+    std::cout << "  Start:\t"  << MovieTime << endl;
     std::cout << "  Price:\t"  << Price << "VND " << endl;
-    std::cout << "  CUSTOMER:     "  << CustomerName << endl;
-    std::cout << "  BUYTIME:      "  << BuyTime  << endl;
+    std::cout << "  Customer:     "  << CustomerName << endl;
+    std::cout << "  BuyTime:      "  << BuyTime  << endl;
     std::cout << "  Seat:         "  << Seat << endl;
     std::cout << "  Room:         "  << Room << endl;
+    std::cout << "  ShowTime:     "  << Showtime << endl;
     
     cout << "o" << std::string(38, '=') << "o";
 }
@@ -89,7 +91,9 @@ void ticket::setCustomer(string customer)
 {
     this->CustomerName = customer;
 }
-
+void ticket::setShowtime(string showtime){
+    this->Showtime = showtime;
+}
 void ticket::setMovieName(string movie)
 {
     this->MovieName = movie;

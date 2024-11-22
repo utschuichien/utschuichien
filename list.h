@@ -42,8 +42,23 @@ public:
     virtual void edit(T data, T newData);
     virtual T *search(string data);
     virtual int getSize();
+    virtual void clear();
 };
+template <class T>
+void list<T>::clear() {
+    node<T> *current = this->head; 
 
+    
+    while (current != nullptr) {
+        node<T> *tmp = current; 
+        current = current->next; 
+        delete tmp;              
+    }
+
+
+    this->head = nullptr;
+    this->size = 0;  
+}
 template <class T>
 list<T>::list()
 {
